@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify, abort
+from integrations.telegram_notify import send_telegram_message
 
 app = Flask(__name__)
 
+# 🔐 ПРОСТАЯ АВТОРИЗАЦИЯ
 API_KEY = "SECRET123"
 
+# 📦 Хранилище задач (в памяти)
 tasks = []
 task_id_counter = 1
 
@@ -32,6 +35,14 @@ def create_task():
 
     tasks.append(task)
     task_id_counter += 1
+
+    # 📬 ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM
+    send_telegram_message(
+        f"📌 Новая задача создана:\n"
+        f"Название: {task['title']}\n"
+        f"Срок: {task['due_date']}\n"
+        f"Приоритет: {task['priority']}"
+    )
 
     return jsonify(task), 201
 
